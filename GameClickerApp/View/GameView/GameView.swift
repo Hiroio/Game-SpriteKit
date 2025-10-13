@@ -28,6 +28,9 @@ struct GameView: View {
                     
                 }
             }
+            if enemyModel.isDead{
+                LootPopUp()
+            }
         }
         .onAppear{
             if scene == nil{

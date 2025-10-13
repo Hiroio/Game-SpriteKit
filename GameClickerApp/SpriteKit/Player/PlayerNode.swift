@@ -30,7 +30,7 @@ class PlayerNode: SKSpriteNode {
     func idlePlayerAnimation(){
         let texture = AnimationHelper.loadTextures(prefix: "knightI_", count: 1...11)
         let animation = AnimationHelper.animate(textures: texture, speed: 0.07)
-        let sequence = SKAction.sequence([animation, SKAction.wait(forDuration: 3.2)])
+//        let sequence = SKAction.sequence([animation, SKAction.wait(forDuration: 3.2)])
         run(animation)
     }
 

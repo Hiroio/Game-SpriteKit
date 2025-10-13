@@ -44,11 +44,16 @@ class EnemyNode: SKSpriteNode {
                 guard !isAnimating else { return }
                 isAnimating = true
                 model.takeHit(amount: 10)
+                let takeDamage = SKAction.run{
+                    if let scene = self.scene as? GameScene {
+                        scene.showDamage(at: self.position, amount: 10)
+                    }
+                }
                 let finish = SKAction.run { [weak self] in
                     self?.isAnimating = false
                 }
                 let animation = AnimationHelper.animate(textures: texture, speed: 0.1, repeatForever: false)
-                run(SKAction.sequence([SKAction.wait(forDuration: 0.24) ,animation, finish]), withKey: "attack")
+                run(SKAction.sequence([SKAction.wait(forDuration: 0.24), takeDamage ,animation, finish]), withKey: "attack")
             }
         
         print("Ворог отримав удар! HP: \(model.hp)")
@@ -61,6 +66,7 @@ class EnemyNode: SKSpriteNode {
         guard !isAnimating else { return }
         isAnimating = true
         model.takeHit(amount: 10)
+
         let finish = SKAction.run { [weak self] in
             self?.isAnimating = false
         }
@@ -70,9 +76,13 @@ class EnemyNode: SKSpriteNode {
         let setFinalFrame = SKAction.run { [weak self] in
             self?.texture = SKTexture(imageNamed: "\(model.name)D_4")
         }
-
+        
         let sequence = SKAction.sequence([SKAction.wait(forDuration: 0.24), deathAnimation, setFinalFrame, finish])
         run(sequence, withKey: "death")
+    }
+    
+    private func damageParticle(){
+        
     }
     
 }

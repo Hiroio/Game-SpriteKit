@@ -18,7 +18,11 @@ class EnemyModel {
         hp -= amount
         if hp <= 0 {
             hp = 0
-            isDead = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2){
+                withAnimation(.easeIn){
+                    self.isDead = true
+                }
+            }
         }
         
     }

@@ -92,4 +92,22 @@ class GameScene: SKScene {
         player.makeHit()
         
     }
+    
+    func showDamage(at position: CGPoint, amount: Int, isCritical: Bool = false) {
+        let damageLabel = SKLabelNode(fontNamed: "Press Start 2P")
+        damageLabel.text = "-\(amount)"
+        damageLabel.fontSize = isCritical ? 26 : 18
+        damageLabel.fontColor = isCritical ? .yellow : .red
+        damageLabel.position = CGPoint(x: position.x, y: position.y + 40)
+        damageLabel.zPosition = 10
+        addChild(damageLabel)
+        
+        // Анімація появи, підняття і зникнення
+        let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.8)
+        let group = SKAction.group([moveUp, fadeOut])
+        let remove = SKAction.removeFromParent()
+        
+        damageLabel.run(SKAction.sequence([group, remove]))
+    }
 }

@@ -15,7 +15,7 @@ struct TopStatsPannel: View {
                 //                GOLD BAR
                 HStack{
                     Text("100")
-                    Image("GoldOre")
+                    Image("Coin")
                         .resizable()
                         .frame(width: 30, height: 30)
                 }
@@ -75,5 +75,6 @@ struct TopStatsPannel: View {
         }
     }
 }
+
 
 
