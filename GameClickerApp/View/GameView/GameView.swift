@@ -13,23 +13,16 @@ struct GameView: View {
     @State private var scene: GameScene? = nil
     var body: some View {
         ZStack{
-            SpriteView(scene: {
-                let scene = GameScene(enemyModel: enemyModel)
-                scene.scaleMode = .resizeFill
-                return scene
-            }())
-            .ignoresSafeArea()
-            
+            if let scene{
+                SpriteView(scene: scene)
+                .ignoresSafeArea()
+            }
             VStack{
                 TopStatsPannel(enemy: enemyModel)
                 Spacer()
-                Button{enemyModel.reset()}label:{
-                    Text("Reset")
-                    
-                }
             }
             if enemyModel.isDead{
-                LootPopUp()
+                LootPopUp(newEnemy: scene?.NextEnemy ?? {print("Fail")})
             }
         }
         .onAppear{

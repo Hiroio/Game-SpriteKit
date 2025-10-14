@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LootPopUp: View {
+    let newEnemy: () -> Void
     var body: some View {
         ZStack{
             Image("PaperTile")
@@ -59,6 +60,9 @@ struct LootPopUp: View {
                     Image("AcceptBtn")
                         .resizable()
                         .frame(width: 40, height: 40)
+                        .onTapGesture {
+                            newEnemy()
+                        }
                     Image("DeclineBtn")
                         .resizable()
                         .frame(width: 40, height: 40)
@@ -72,5 +76,5 @@ struct LootPopUp: View {
 }
 
 #Preview {
-    LootPopUp()
+    LootPopUp(newEnemy: {})
 }

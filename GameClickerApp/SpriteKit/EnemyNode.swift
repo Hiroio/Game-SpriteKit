@@ -24,11 +24,11 @@ class EnemyNode: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func idleEnemyAnimation(){
-        let texture = AnimationHelper.loadTextures(prefix: "\(model!.name)I_", count: 1...4)
-        let animation = SKAction.repeat(AnimationHelper.animate(textures: texture, speed: 0.13, repeatForever: false), count: 3)
-//        let sequence = SKAction.sequence([animation, SKAction.wait(forDuration: 3.2)])
-        run(SKAction.repeatForever(animation), withKey: "idle")
+    func idleEnemyAnimation() {
+        guard let model = model else { return }
+        let textures = AnimationHelper.loadTextures(prefix: "\(model.name)I_", count: 1...4)
+        let animation = AnimationHelper.animate(textures: textures, speed: 0.13, repeatForever: true)
+        run(animation, withKey: "idle")
     }
     
     func takeHit() {

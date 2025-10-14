@@ -9,6 +9,7 @@ import Observation
 
 @Observable
 class EnemyModel {
+    let enemies: [String] = ["Goblin"]
     var name: String = "Goblin"
     var hp: Int = 100
     let totalHP = 100
@@ -28,8 +29,11 @@ class EnemyModel {
     }
     
     
-    func reset() {
+    func resetEnemy() {
+        name = enemies.randomElement()!
         hp = 100
-        isDead = false
+        withAnimation(.easeOut){
+            isDead = false
+        }
     }
 }

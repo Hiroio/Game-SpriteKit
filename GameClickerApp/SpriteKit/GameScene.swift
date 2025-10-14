@@ -34,6 +34,10 @@ class GameScene: SKScene {
         enemy.idleEnemyAnimation()
     }
     
+    func resetEnemy(){
+        
+    }
+    
     func setupParallaxBackground() {
         let backgrounds = [
             ("backgroundForestl_1", 0.2), // найдальший
@@ -90,7 +94,6 @@ class GameScene: SKScene {
         let _ = touch.location(in: self)
         enemy.takeHit()
         player.makeHit()
-        
     }
     
     func showDamage(at position: CGPoint, amount: Int, isCritical: Bool = false) {
@@ -102,12 +105,37 @@ class GameScene: SKScene {
         damageLabel.zPosition = 10
         addChild(damageLabel)
         
-        // Анімація появи, підняття і зникнення
         let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
         let fadeOut = SKAction.fadeOut(withDuration: 0.8)
         let group = SKAction.group([moveUp, fadeOut])
         let remove = SKAction.removeFromParent()
         
         damageLabel.run(SKAction.sequence([group, remove]))
+    }
+    
+    func NextEnemy() {
+        enemyModel.resetEnemy()
+
+        let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+        enemy.run(fadeOut) { [weak self] in
+            guard let self = self else { return }
+            
+            // Видаляємо старого ворога
+            self.enemy.removeFromParent()
+            
+            // Створюємо нового ворога
+            let newEnemy = EnemyNode(model: self.enemyModel)
+            newEnemy.position = CGPoint(x: self.size.width / 1.2, y: self.size.height / 3)
+            newEnemy.zPosition = 2
+            newEnemy.alpha = 0
+            self.addChild(newEnemy)
+            self.enemy = newEnemy
+            
+            // fadeIn + idle анімація
+            let fadeIn = SKAction.fadeIn(withDuration: 0.3)
+            newEnemy.run(fadeIn) {
+                newEnemy.idleEnemyAnimation()
+            }
+        }
     }
 }
