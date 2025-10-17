@@ -5,16 +5,21 @@
 //  Created by Vladuslav on 05.10.2025.
 //
 
-import Foundation
+import SwiftUI
 
+@Observable
+class GameController {
+    enum SceneType {
+        case mainMenu
+        case town
+        case battle
+    }
 
-func generateRandomEnemy() -> EnemyModel {
-    let enemies = ["Goblin"]
-    let randomName = enemies.randomElement() ?? "Goblin"
-    let randomHP = Int.random(in: 50...200)
+    var currentScene: SceneType = .mainMenu
+    var playerModel = PlayerModel()
+    var enemyModel = EnemyModel()
     
-    let enemy = EnemyModel()
-    enemy.name = randomName
-    enemy.hp = randomHP
-    return enemy
+    func loadScene(_ type: SceneType) {
+        currentScene = type
+    }
 }
