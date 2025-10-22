@@ -10,6 +10,7 @@ import SpriteKit
 
 struct TownView: View {
     @State private var scene: TownScene? = nil
+    @State private var controller: TownController = TownController()
     var body: some View {
             GeometryReader{ geo in
                 VStack(spacing: 0){
@@ -18,9 +19,26 @@ struct TownView: View {
                             .frame(height: geo.size.height * 0.7)
                             .ignoresSafeArea()
                     }
-                    Color.gray
-                        .frame(height: geo.size.height * 0.5)
-                        .ignoresSafeArea()
+                    ZStack{
+                        Image("TileWall")
+                            .resizable(resizingMode: .tile)
+                            .ignoresSafeArea()
+                        VStack{
+                            HStack{
+                                Image("ForestIcon")
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                            }.offset(y: -75)
+                            Spacer()
+                            HStack{
+                                Image(controller.bottomState.icon)
+                                    .resizable()
+                                    .frame(width: 70, height: 60)
+                            }.offset(y: -30)
+                        }
+                        .frame(height: geo.size.height * 0.4)
+                        
+                    }.frame(height: geo.size.height * 0.5)
                 }
                 .ignoresSafeArea()
             }
@@ -28,6 +46,7 @@ struct TownView: View {
             if scene == nil{
                 let newScene = TownScene()
                 newScene.scaleMode = .resizeFill
+                newScene.controller = controller
                 scene = newScene
             }
         }

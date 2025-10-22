@@ -8,17 +8,19 @@ import SpriteKit
 
 
 class TownScene: SKScene {
+    var controller: TownController?
     var cameraNode = SKCameraNode()
     var player: PlayerNode!
     var npcs: [NPCNode] = []
     var staticLayers: [SKSpriteNode] = []
-    var cloudLayer: SKSpriteNode!
+    var bgWidth: CGFloat = 0
     
     override func didMove(to view: SKView) {
         setupBackground()
+        setupNPCs()
         setupPlayer()
         player.idlePlayerAnimation()
-        setupNPCs()
+        setupCamera()
     }
 
 
@@ -28,14 +30,17 @@ class TownScene: SKScene {
         let staticImages = [
             "TownBackgroundL_1",
             "TownBackgroundL_2",
-            "TownBackgroundL_3"
+            "TownBackgroundL_3",
+            "TownBackgroundL_4",
+            "TownBackgroundL_5",
+            "TownBackgroundL_6",
+            "TownBackgroundL_7"
         ]
         let texture = SKTexture(imageNamed: "TownBackgroundL_1")
         let aspect = texture.size().width / texture.size().height
-        let bgWidth = size.height * aspect
+        bgWidth = size.height * aspect
         
         for (index, name) in staticImages.enumerated() {
-            // перша половина
             let bg1 = SKSpriteNode(imageNamed: name)
             bg1.anchorPoint = CGPoint(x: 0, y: 0)
             bg1.position = CGPoint(x: 0, y: 0)
@@ -43,7 +48,7 @@ class TownScene: SKScene {
             bg1.size = CGSize(width: bgWidth, height: size.height)
             addChild(bg1)
             
-            // друга половина праворуч (подвоюємо)
+            
             let bg2 = SKSpriteNode(imageNamed: name)
             bg2.anchorPoint = CGPoint(x: 0, y: 0)
             bg2.position = CGPoint(x: bg1.size.width, y: 0)
@@ -51,65 +56,156 @@ class TownScene: SKScene {
             bg2.zPosition = CGFloat(index)
             addChild(bg2)
         }
+        
+        let church = SKSpriteNode(imageNamed: "Church")
+        church.position = CGPoint(x: bgWidth * 1.6, y: 80)
+        church.setScale(2)
+        church.anchorPoint = CGPoint(x: 0, y: 0)
+        church.zPosition = 4
+        
+        addChild(church)
+        
     }
-//    func setupCamera() {
-//        camera = cameraNode
-//        cameraNode.position = CGPoint(x: -size.width / 2, y: 0)
-//        addChild(cameraNode)
-//    }
-//
-//
-//    override func didSimulatePhysics() {
-//        guard let player = player else { return }
-//        
-//        let cameraHalfWidth = size.width / 2
-//        let worldLeft = -size.width / 2
-//        let worldRight = size.width * 1.5
-//        
-//        var cameraX = player.position.x
-//        cameraX = max(worldLeft + cameraHalfWidth, min(cameraX, worldRight - cameraHalfWidth))
-//        
-//        cameraNode.position = CGPoint(x: cameraX, y: 0)
-//        
-//        // хмари рухаються разом
-//        cloudLayer.position.x = cameraX
-//    }
+
+
 
 
 
     func setupPlayer() {
         player = PlayerNode()
-        player.zPosition = 8
-        player.anchorPoint = CGPoint(x: 0, y: 0)
-        player.position = CGPoint(x: -150, y: -130)
+        player.zPosition = 5
+        player.anchorPoint = CGPoint(x: 0.5, y: 0)
+        player.position = CGPoint(x: 50, y: -130)
         
         addChild(player)
     }
     
+    func setupCamera() {
+        camera = cameraNode
+        addChild(cameraNode)
+        
+        cameraNode.position = CGPoint(x: player.position.x, y: size.height / 2)
+    }
+
     
 
     func setupNPCs() {
-        let npc1 = NPCNode(type: .quest)
-        npc1.anchorPoint = CGPoint(x: 0, y: 0)
-        npc1.position = CGPoint(x: size.width * 0.5, y: 20)
+        let npc1 = NPCNode(type: .shop)
+        let npc2 = NPCNode(type: .quest)
+        let npc3 = NPCNode(type: .healer)
         
-        addChild(npc1)
+        npc1.position = CGPoint(x: bgWidth * 0.3, y: 25)
+        npc2.position = CGPoint(x: bgWidth * 0.9, y: 35)
+        npc3.position = CGPoint(x: bgWidth * 1.5, y: 25)
         
-        npcs = [npc1]
+        [npc1, npc2, npc3].forEach {
+            $0.anchorPoint = CGPoint(x: 0, y: 0)
+            $0.zPosition = 5
+            addChild($0)
+        }
+        
+        npcs = [npc1, npc2, npc3]
+    }
+    
+
+    override func update(_ currentTime: TimeInterval) {
+        let halfWidth = size.width / 2
+        let minX = halfWidth
+        let maxX = bgWidth * 2 - halfWidth  // якщо у тебе 2х фон
+
+        let targetX = player.position.x
+        let clampedX = max(min(targetX, maxX), minX)
+        cameraNode.position.x = clampedX
     }
 
 
 
-//    func setupNPCs() {
-//        let shopNPC = NPCNode(type: .shop)
-//        shopNPC.position = CGPoint(x: size.width * 0.8, y: 200)
-//        addChild(shopNPC)
-//        npcs.append(shopNPC)
-//    }
+    
+    
 
 
-    func updateCamera() {
-        // Центруємо камеру на гравцеві (якщо хочеш прокрутку)
-        camera?.position.x = player.position.x
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        if location.x > player.position.x {
+            moveToNearestNPC(direction: .right)
+        }else{
+            moveToNearestNPC(direction: .left)
+        }
     }
+
+
+    func moveToNearestNPC(direction: Direction) {
+        guard !npcs.isEmpty else { return }
+
+        let playerX = player.position.x
+        
+        let candidates: [NPCNode]
+        switch direction {
+        case .left:
+            candidates = npcs.filter { $0.position.x < playerX - 300 }
+        case .right:
+            candidates = npcs.filter { $0.position.x > playerX + 150 }
+        }
+        
+        
+        guard let targetNPC = candidates.min(by: {
+            abs($0.position.x - playerX) < abs($1.position.x - playerX)
+        }) else {
+//            NO NPC IN THAT WAY
+            return
+        }
+        movePlayer(to: targetNPC.position.x - (direction == .right ? -250 : -250), npc: targetNPC)
+    }
+    
+    func movePlayer(to targetX: CGFloat, npc: NPCNode) {
+        print(targetX, player.position.x)
+        if targetX < player.position.x{
+            player.xScale = -1
+        }else{
+            player.xScale = 1
+        }
+        player.removeAction(forKey: "move")
+        
+        let duration = abs(targetX - player.position.x) / 250.0
+        let moveAction = SKAction.moveTo(x: targetX, duration: duration)
+        
+        
+        let idle = SKAction.run { [weak self] in
+            self?.player.idlePlayerAnimation()
+        }
+        
+        let lookAtNPC = SKAction.run {
+            let npcDirection: CGFloat = targetX > self.player.position.x ? 1 : -1
+            self.player.xScale = abs(self.player.xScale) * npcDirection
+        }
+        
+        player.runPlayerAnimation()
+        
+        let sequence = SKAction.sequence([moveAction, lookAtNPC, idle])
+        player.run(sequence, withKey: "move")
+        
+        switch npc.type {
+        case .shop:
+            controller?.changeState(to: .shop)
+        case .quest:
+            controller?.changeState(to: .quest)
+        case .healer:
+            controller?.changeState(to: .healer)
+        }
+
+        
+        
+        
+    }
+
+
+
+
+}
+
+
+
+enum Direction {
+    case left, right
 }

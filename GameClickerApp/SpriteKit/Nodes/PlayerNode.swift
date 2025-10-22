@@ -24,11 +24,22 @@ class PlayerNode: SKSpriteNode {
     }
     
     func idlePlayerAnimation(){
+        removeAllActions()
         let texture = AnimationHelper.loadTextures(prefix: "knightI_", count: 1...11)
         let animation = AnimationHelper.animate(textures: texture, speed: 0.07)
 //        let sequence = SKAction.sequence([animation, SKAction.wait(forDuration: 3.2)])
         run(animation)
     }
+
+    func runPlayerAnimation() {
+        removeAllActions()
+        
+        let walkFrames = AnimationHelper.loadTextures(prefix: "knightR_", count: 1...8)
+        let walkAction = AnimationHelper.animate(textures: walkFrames, speed: 0.12)
+        run(walkAction, withKey: "walkAnimation")
+    }
+    
+
 
     func makeHit() {
             // якщо герой зараз анімується — ігноруємо клік
@@ -46,6 +57,8 @@ class PlayerNode: SKSpriteNode {
 
             run(SKAction.sequence([animation, finish]), withKey: "attack")
         }
+    
+    
 }
 
 
