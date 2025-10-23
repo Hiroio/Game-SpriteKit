@@ -159,7 +159,7 @@ class TownScene: SKScene {
     }
     
     func movePlayer(to targetX: CGFloat, npc: NPCNode) {
-        print(targetX, player.position.x)
+        controller?.changeState(to: .idle)
         if targetX < player.position.x{
             player.xScale = -1
         }else{
@@ -179,20 +179,22 @@ class TownScene: SKScene {
             let npcDirection: CGFloat = targetX > self.player.position.x ? 1 : -1
             self.player.xScale = abs(self.player.xScale) * npcDirection
         }
+        let controllerAction = SKAction.run { [weak self] in
+            switch npc.type {
+            case .shop:
+                self?.controller?.changeState(to: .shop)
+            case .quest:
+                self?.controller?.changeState(to: .quest)
+            case .healer:
+                self?.controller?.changeState(to: .healer)
+            }
+        }
         
         player.runPlayerAnimation()
         
-        let sequence = SKAction.sequence([moveAction, lookAtNPC, idle])
+        let sequence = SKAction.sequence([moveAction, lookAtNPC, idle, controllerAction])
         player.run(sequence, withKey: "move")
-        
-        switch npc.type {
-        case .shop:
-            controller?.changeState(to: .shop)
-        case .quest:
-            controller?.changeState(to: .quest)
-        case .healer:
-            controller?.changeState(to: .healer)
-        }
+
 
         
         
